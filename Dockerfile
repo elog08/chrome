@@ -7,16 +7,18 @@ COPY copyables /
 ADD https://dl.google.com/linux/linux_signing_key.pub /tmp/
 
 RUN apt-key add /tmp/linux_signing_key.pub \
-	&& apt-get update \
-	&& apt-get install -y \
+	&& apt-get update
+RUN apt-get install -y \
 	google-chrome-stable \
 	chrome-remote-desktop \
 	fonts-takao \
+	git \
 	pulseaudio \
 	supervisor \
 	x11vnc \
-	fluxbox \
-	&& apt-get clean \
+	make \
+	fluxbox
+RUN apt-get clean \
 	&& rm -rf /var/cache/* /var/log/apt/* /var/lib/apt/lists/* /tmp/* \
 	&& useradd -m -G chrome-remote-desktop,pulse-access chrome \
 	&& usermod -s /bin/bash chrome \
@@ -35,7 +37,12 @@ RUN apt-key add /tmp/linux_signing_key.pub \
 
 VOLUME ["/home/chrome"]
 
-EXPOSE 5900
+RUN git clone https://github.com/kanaka/websockify
+RUN git clone https://github.com/novnc/noVNC
+
+EXPOSE 5900 443 80
+
+ENV WINDOW_SIZE=1024,768
 
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
 
